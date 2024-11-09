@@ -1,6 +1,6 @@
-#ssn-proxy-reactive
+# ssn-proxy-reactive
 
-##Usage
+## Usage
 
 *SSNRenderState* class must be extended by your *NewAwesome* class.
 
@@ -18,9 +18,9 @@ class NewAwesome extands SSNRenderState {
 
 In context of *SSNRenderState*: 
 - **state** is a Proxy object with any name you want;
-- **render method** is DOM element data update methods, so is not the same as in React or VUE 
+- **render method** is method will called at **state** property changes. In narrow application it can be used for DOM update as in example `index.js`.
 
-##Create state 
+## Create state 
 
 State creation is definetely to write Proxy witth build-in method `this.createState`.
 
@@ -39,7 +39,7 @@ Here:
 -  **beforeRenderArray**, **renderArray**, **afterRenderArray** - definetely the lists of functions wich will be run before render, as render and after render accordingly;
 
 
-##Build-in medthods and properties
+## Build-in medthods and properties
 
 **this.forceUpdateRender**
  : litteraly force update the view and ignore render lock.
@@ -59,11 +59,11 @@ Here:
 **this.afterRender** 
 : call all functions in `afterRenderArray`. Maybe it is lifecircle hook - `mounted`, but not sure.
 
-##Other information 
+## Other information 
 
 If some thing will a lot of times chages *this.state* property or call *this.forceUpdateRender* the render will call just one time. This term is true if time distance between render call smaller then *this.forceUpdateRender*'s RAF execution time.
 
-###Future 
+### Future 
 - [] Need samples with DOM structure update (add or delete nodes elements);
 - [] Need samples with fetch information DOM update;
 

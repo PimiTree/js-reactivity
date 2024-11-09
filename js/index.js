@@ -16,10 +16,12 @@ class CounterController extends SSNRenderState {
    
         this.multyplicationFactor = props.multyplicationFactor;
 
+        // create reactive data source
         this.count = {
             value: props.initValue
-        }
+        };
 
+        // create reactive property;
         this.count = this.createState(
             {
                 obj: this.count,
@@ -29,10 +31,10 @@ class CounterController extends SSNRenderState {
             }
         );
 
-
+    
         this.setEvents();
 
-        // тест множественных рендеров - редер вызывается 1 раз, но 100к обращений к proxy - єто дорого
+        // multyple reactive changes call will casue rerender just one time but proxy.get is obviuously expemsive operation
         // setTimeout(() => {
         //     for (let i = 0; i < 100000; i++) {
         //         this.count.value += 1
