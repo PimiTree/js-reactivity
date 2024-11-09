@@ -2,7 +2,7 @@
 
 ## Usage
 
-*SSNRenderState* class must be extended by your *NewAwesome* class.
+`SSNRenderState` class must be extended by your `NewAwesome` class.
 
 ```
 class NewAwesome extands SSNRenderState {
@@ -14,9 +14,9 @@ class NewAwesome extands SSNRenderState {
 }
 ```
 
-*NewAwesome* class have to provide a state creation and implement render methods.
+`NewAwesome` class have to provide a state creation and implement render methods.
 
-In context of *SSNRenderState*: 
+In context of `SSNRenderState`: 
 - **state** is a Proxy object with any name you want;
 - **render method** is method will called at **state** property changes. In narrow application it can be used for DOM update as in example `index.js`.
 
