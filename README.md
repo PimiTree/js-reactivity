@@ -64,7 +64,7 @@ Here:
 If some thing will a lot of times chages *this.state* property or call *this.forceUpdateRender* the render will call just one time. This term is true if time distance between render call smaller then *this.forceUpdateRender*'s RAF execution time.
 
 ### Future 
-- [] Need samples with DOM structure update (add or delete nodes elements);
-- [] Need samples with fetch information DOM update;
+- [ ] Need samples with DOM structure update (add or delete nodes elements);
+- [ ] Need samples with fetch information DOM update;
 
 
