@@ -22,14 +22,19 @@ class CounterController extends SSNRenderState {
         };
 
         // create reactive property;
-        this.count = this.createState(
+        this.state = this.createState(
             {
                 obj: this.count,
-                renderArray: [this.actualInputRender],
+                renderObject: {
+                    actualInput: [this.actualInputRender]
+                },
                 beforeRenderArray: [this.multypliedRender],
                 afterRenderArray :[() => console.log("Call after render in RAF")]
             }
         );
+
+        this.count = this.state[0];
+        this.countInstance = this.state[1];
 
     
         this.setEvents();

@@ -3,20 +3,21 @@ export class SSNRenderState {
         this.renderEnabled = true;
         this.extendTimer = null;
 
-        this.renderArray = [];
+        this.renderObject = {};
         this.beforeRenderArray = [];
         this.afterRenderArray = [];
 
         this.frame = null;
         this.ref = null;
     }
-    createState = (props)=> {
-        if (props.renderArray != null) this.renderArray = props.renderArray;
+
+    createState = (props) => {
+        if (props.renderObject != null) this.renderObject = props.renderObject;
         if (props.beforeRenderArray != null) this.beforeRenderArray = props.beforeRenderArray;
         if (props.afterRenderArray != null) this.afterRenderArray = props.afterRenderArray;
 
         this.ref = props.obj;
-        const proxy =  new Proxy(props.obj, {
+        const proxy = new Proxy(props.obj, {
             set: (target, key, value, receiver) => {
                 Reflect.set(target, key, value, receiver)
                 if (this.renderEnabled) {
@@ -30,8 +31,8 @@ export class SSNRenderState {
         });
 
         this.forceUpdateRender();
-    
-        return proxy;
+
+        return [proxy, this];
     }
 
     forceUpdateRender = () => {
@@ -39,7 +40,7 @@ export class SSNRenderState {
         this.frame = requestAnimationFrame(() => {
             this.beforeRender();
             this.render();
-    
+
             requestAnimationFrame(() => {
                 this.afterRender()
             })
@@ -55,8 +56,11 @@ export class SSNRenderState {
     }
 
     render = () => {
-        for (let i = 0; i < this.renderArray.length; i++) {
-            this.renderArray[i]();
+        const renderSeq = Object.values(this.renderObject);
+        for (let i = 0; i < renderSeq.length; i++) {
+            for (let j = 0; j < renderSeq[i].length; j++) {
+                renderSeq[i][j]();
+            }
         }
     }
 
@@ -71,6 +75,4 @@ export class SSNRenderState {
             this.afterRenderArray[i]();
         }
     }
-
-
 }
