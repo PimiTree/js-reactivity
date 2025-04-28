@@ -40,7 +40,7 @@ class CounterController extends SSNRenderState {
         //         this.count.value += 1
         //     }
         // }, 4000)
-    
+
     }
 
     setEvents = () => {
@@ -74,11 +74,14 @@ class CounterController extends SSNRenderState {
     }
 
     decr = () => this.count.value -= 1;
+
     incr = () => this.count.value += 1;
+
     decrRef = () => {
         this.ref.value -= 1;
         console.log(this.count,  this.ref);
     };
+
     incrMutex = () => {
         this.disableRendering();
         this.count.value += 1;
