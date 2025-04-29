@@ -31,6 +31,15 @@ numberRef.value = 7; // log 7
 ```
 `.effect(changeNumbereffect)` calls the effect and adds it to the pool. 
 
+To prevent call effect at first assignment use `firstCall: false` option
+```ecmascript 6
+const countRef = ref(0);
+function effect1 (value) {
+  console.log(value, "I'm effect 1")
+}
+countRef.effect(effect1, {firstCall: false}); // nothing happens
+```
+
 ## Create reactive 
 
 ### Primitives
@@ -246,16 +255,7 @@ The debouncing delay is device-specific and depends on the requestAnimationFrame
 
 ### Variable change without call effect
 
-To prevent call effect at first assignment use `firstCall: false` option
-```ecmascript 6
-const countRef = ref(0);
-function effect1 (value) {
-  console.log(value, "I'm effect 1")
-}
-countRef.effect(effect1, {firstCall: false}); // nothing happens
-```
-
-Legacy: If make changes at `.refValue` it not call any effect.
+If make changes at `.refValue` it not call any effect.
 ```ecmascript 6
 const countRef = ref(0);
 function effect1 (value) {
