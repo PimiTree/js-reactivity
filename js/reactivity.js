@@ -55,16 +55,16 @@ const ref = (value, options) => {
     ref = createRef(value);
   }
 
-  ref.effect = function (effect, name) {
+  ref.effect = function (effect, options) {
     const totalEffects = this.__getNewEffects(effect);
 
     if (totalEffects.length === 0) return;
 
     let effectContainer;
-    if (name !== undefined) {
-      if (this.namedEffects[name] === undefined) this.namedEffects[name] = [];
+    if (options.name !== undefined) {
+      if (this.namedEffects[options.name] === undefined) this.namedEffects[options.name] = [];
 
-      effectContainer = this.namedEffects[name];
+      effectContainer = this.namedEffects[options.name];
     } else {
       effectContainer = this.stabeEffects;
     }

@@ -131,7 +131,7 @@ countRef.effect((value) =>   console.log(value));
 
 #### Fill up `.namedEffects` pool with second parameter of subpool name
 ```ecmascript 6
-countRef.effect((value) =>   console.log(value), 'subpoolName');
+countRef.effect((value) =>   console.log(value), {name: 'subpoolName'});
 ```
 
 #### Multiple fill up 
@@ -151,7 +151,7 @@ countRef.effect(effect1);
 countRef.effect(effect2);
 
 // array of effects
-countRef.effect([effect1, effect2], 'subpoolName');
+countRef.effect([effect1, effect2], {name: 'subpoolName'});
 
 ```
 
@@ -172,8 +172,8 @@ console.log(countRef.stabeEffects.length) // 1
 
 // 
 
-countRef.effect(effect1, 'subpoolName');
-countRef.effect(effect1, 'subpoolName');
+countRef.effect(effect1, {name: 'subpoolName'});
+countRef.effect(effect1, {name: 'subpoolName'});
 countRef.effect(effect1);
 countRef.effect(effect1, 'anotherSubpoolName');
 

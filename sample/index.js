@@ -18,7 +18,7 @@ const updateMultiply = (value) => {
 }
 
 // [updateCount, updateMultiply] will be assigned just once to namedEfect object and call just once each
-countRef.effect([updateCount, updateMultiply], 'multiply');
+countRef.effect([updateCount, updateMultiply], {name: 'multiply'});
 countRef.effect([updateCount, updateMultiply]);
 countRef.effect(updateCount);
 countRef.effect(function (value) {console.log(value)} );
