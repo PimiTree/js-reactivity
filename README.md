@@ -246,7 +246,16 @@ The debouncing delay is device-specific and depends on the requestAnimationFrame
 
 ### Variable change without call effect
 
-If make changes at `.refValue` it not call any effect.
+To prevent call effect at first assignment use `firstCall: false` option
+```ecmascript 6
+const countRef = ref(0);
+function effect1 (value) {
+  console.log(value, "I'm effect 1")
+}
+countRef.effect(effect1, {firstCall: false}); // nothing happens
+```
+
+Legacy: If make changes at `.refValue` it not call any effect.
 ```ecmascript 6
 const countRef = ref(0);
 function effect1 (value) {
@@ -259,8 +268,7 @@ countRef.value += 1; // 2
 ```
 
 
-Soon: 
-1. Option `.effect(someEffect, {firstCall: false})`
-2. Effect second parameter `oldValue` for both types of refs
-3. Big sample of some complicate component use ref reactivity undef the hood
-4. JSDoc
+Soon:
+1. Effect second parameter `oldValue` for both types of refs
+2. Big sample of some complicate component use ref reactivity undef the hood
+3. JSDoc
