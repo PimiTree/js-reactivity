@@ -55,24 +55,27 @@ const ref = (value, options) => {
     ref = createRef(value);
   }
 
-  ref.effect = function (effect, options) {
+  ref.effect = function (effect, effectOptions) {
     const totalEffects = this.__getNewEffects(effect);
 
     if (totalEffects.length === 0) return;
 
     let effectContainer;
-    if (options.name !== undefined) {
-      if (this.namedEffects[options.name] === undefined) this.namedEffects[options.name] = [];
+    if (effectOptions?.name !== undefined) {
+      if (this.namedEffects[effectOptions.name] === undefined) this.namedEffects[effectOptions.name] = [];
 
-      effectContainer = this.namedEffects[options.name];
+      effectContainer = this.namedEffects[effectOptions.name];
     } else {
       effectContainer = this.stabeEffects;
     }
 
     effectContainer.push(...totalEffects);
-    totalEffects.forEach((func) => {
-      func(this.value)
-    })
+
+    if (effectOptions?.firstCall === undefined || effectOptions.firstCall === true) {
+      totalEffects.forEach((func) => {
+        func(this.value)
+      })
+    }
   }
   ref.__getNewEffects = function (effect) {
     const inputEffects = Array.isArray(effect) ? effect : [effect];

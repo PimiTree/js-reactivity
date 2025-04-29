@@ -18,13 +18,13 @@ const updateMultiply = (value) => {
 }
 
 // [updateCount, updateMultiply] will be assigned just once to namedEfect object and call just once each
-countRef.effect([updateCount, updateMultiply], {name: 'multiply'});
+countRef.effect([updateCount, updateMultiply], {name: 'multiply', firstCall: false});
 countRef.effect([updateCount, updateMultiply]);
 countRef.effect(updateCount);
 countRef.effect(function (value) {console.log(value)} );
 
 
-multiplyFactorRef.effect(() => countRef.callEffects());
+multiplyFactorRef.effect(() => countRef.callEffects(), {firstCall: false});
 
 
 decrButton.addEventListener('click', () => {
