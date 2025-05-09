@@ -271,4 +271,3 @@ countRef.value += 1; // 2
 Soon:
 1. Effect second parameter `oldValue` for both types of refs
 2. Big sample of some complicate component use ref reactivity undef the hood
-3. JSDoc
