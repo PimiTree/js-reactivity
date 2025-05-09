@@ -1,17 +1,27 @@
+/**
+ * @typedef {function} EffectCallback
+ * @param {any} value - The current value of the reference
+ * @returns {void}
+ */
+
+/**
+ * @typedef {Object} SetterRefObject
+ * @property {any} refValue - The underlying stored value
+ * @property {EffectCallback[]} stabeEffects - Array of effect callbacks without names
+ * @property {Object.<string, EffectCallback[]>} namedEffects - Object mapping effect names to arrays of callbacks
+ * @property {number} __raf - ID of the current requestAnimationFrame used for batching updates
+ * @property {any} value - Getter/setter for the reference value
+ * @property {function(EffectCallback|EffectCallback[], Object=): void} effect - Method to register effect callbacks
+ * @property {function(EffectCallback|EffectCallback[]): EffectCallback[]} __getNewEffects - Internal helper to filter out already registered effects
+ * @property {function(): void} callEffects - Method to trigger all registered effects
+ * @property {function(EffectCallback|EffectCallback[]): boolean} isEffectExist - Method to check if an effect is already registered
+ * @property {string[]} effectNames - Getter for retrieving all named effect keys
+ */
 
 /**
  * Creates a setter-based reactive reference
- * @param {function|function[]} value - Initial value for the reference
- * @returns {Object} A reactive reference object
- * @property {function|function[]} refValue - The underlying stored value
- * @property {function[]} stabeEffects - Array of effect callbacks without names
- * @property {Object.<string, function[]>} namedEffects - Object mapping effect names to arrays of callbacks
- * @property {number} __raf - ID of the current requestAnimationFrame used for batching updates
- * @property {function} effect - Method to register effect callbacks
- * @property {function} __getNewEffects - Internal helper to filter out already registered effects
- * @property {function} callEffects - Method to trigger all registered effects
- * @property {function} isEffectExist - Method to check if an effect is already registered
- * @property {string[]} effectNames - Getter for retrieving all named effect keys
+ * @param {any} value - Initial value for the reference
+ * @returns {SetterRefObject} A reactive reference object
  */
 const createRef = (value) => {
   return {
@@ -44,13 +54,22 @@ const createRef = (value) => {
 
 
 /**
+ * @typedef {Object} ProxyRefObject
+ * @property {Proxy} value - Proxied object that tracks all property changes
+ * @property {EffectCallback[]} stabeEffects - Array of effect callbacks without names
+ * @property {Object.<string, EffectCallback[]>} namedEffects - Object mapping effect names to arrays of callbacks
+ * @property {number} raf - ID of the current requestAnimationFrame used for batching updates
+ * @property {function(EffectCallback|EffectCallback[], Object=): void} effect - Method to register effect callbacks
+ * @property {function(EffectCallback|EffectCallback[]): EffectCallback[]} __getNewEffects - Internal helper to filter out already registered effects
+ * @property {function(): void} callEffects - Method to trigger all registered effects
+ * @property {function(EffectCallback|EffectCallback[]): boolean} isEffectExist - Method to check if an effect is already registered
+ * @property {string[]} effectNames - Getter for retrieving all named effect keys
+ */
+
+/**
  * Creates a proxy-based reactive reference for objects that detects property changes
  * @param {Object} value - Initial object value for the reference
- * @returns {Object} A reactive reference object with proxy-based change detection
- * @property {Object} value - Proxied object that tracks all property changes
- * @property {function[]} stabeEffects - Array of effect callbacks without names
- * @property {Object.<string, function[]>} namedEffects - Object mapping effect names to arrays of callbacks
- * @property {number} raf - ID of the current requestAnimationFrame used for batching updates
+ * @returns {ProxyRefObject} A reactive reference object with proxy-based change detection
  */
 const createShallowProxyRef = (value) => {
   return new function () {
@@ -101,21 +120,35 @@ const createShallowProxyRef = (value) => {
 
 
 /**
+ * @typedef {Object} RefOptions
+ * @property {('setter'|'proxy')} [type] - Type of reference ('setter' forces setter-based even for objects)
+ * @property {boolean} [firstCall] - Whether to call effects immediately upon registration for the main ref function
+ */
+
+/**
+ * @typedef {Object} EffectOptions
+ * @property {string} [name] - Name to identify this effect group
+ * @property {boolean} [firstCall=true] - Whether to call the effect immediately
+ */
+
+/**
+ * @typedef {SetterRefObject|ProxyRefObject} RefObject
+ */
+
+/**
  * Creates a reactive reference that can be observed for changes
  * @param {any} value - Initial value for the reference
- * @param {Object} [options] - Configuration options
- * @param {string} [options.type] - Type of reference ('setter' forces setter-based even for objects)
- * @param {boolean} [options.firstCall] - Whether to call effects immediately upon registration
- * @returns {Object} A reactive reference object with various utility methods
+ * @param {RefOptions} [options] - Configuration options
+ * @returns {RefObject} A reactive reference object with various utility methods
  *
  */
 const ref = (value, options) => {
 
   /**
    * The reference object to be returned
-   * @type {Object}
+   * @type {RefObject}
    */
-  let ref
+  let ref;
 
 
   if (typeof value === 'object' && !(value instanceof Date) && options?.type !== 'setter') {
@@ -126,10 +159,8 @@ const ref = (value, options) => {
 
   /**
    * Registers an effect callback to be called when the reference value changes
-   * @param {function|function[]} effect - Single effect function or array of effect functions
-   * @param {Object} [effectOptions] - Options for the effect
-   * @param {string} [effectOptions.name] - Name to identify this effect group
-   * @param {boolean} [effectOptions.firstCall=true] - Whether to call the effect immediately
+   * @param {EffectCallback|EffectCallback[]} effect - Single effect function or array of effect functions
+   * @param {EffectOptions} [effectOptions] - Options for the effect
    */
   ref.effect = function (effect, effectOptions) {
     const totalEffects = this.__getNewEffects(effect);
@@ -157,8 +188,8 @@ const ref = (value, options) => {
   /**
    * Internal helper to filter out already registered effects
    * @private
-   * @param {function|function[]} effect - Effect function or array of effect functions
-   * @returns {function[]} Array of effect functions that aren't already registered
+   * @param {EffectCallback|EffectCallback[]} effect - Effect function or array of effect functions
+   * @returns {EffectCallback[]} Array of effect functions that aren't already registered
    */
   ref.__getNewEffects = function (effect) {
     const inputEffects = Array.isArray(effect) ? effect : [effect];
@@ -197,7 +228,7 @@ const ref = (value, options) => {
 
   /**
    * Checks if an effect is already registered
-   * @param {function|function[]} effect - Effect function or array of effect functions to check
+   * @param {EffectCallback|EffectCallback[]} effect - Effect function or array of effect functions to check
    * @returns {boolean} True if all provided effects are already registered
    */
   ref.isEffectExist = function(effect) {
@@ -207,9 +238,15 @@ const ref = (value, options) => {
   /**
    * Gets all names of registered named effect groups
    * @type {string[]}
+   *
    */
   Object.defineProperty(ref, 'effectNames', {
     get: function () {
+      /**
+       * @this {RefObject}
+       * @this.namedEffects {Object.<string, EffectCallback[]>}
+       * @returns {string[]} Array of effect group names
+       */
       return Object.keys(this.namedEffects);
     }
   })
