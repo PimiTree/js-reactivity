@@ -1,3 +1,5 @@
+// Created by PimiTree https://github.com/PimiTree/js-reactivity
+
 /**
  * @typedef {function} EffectCallback
  * @param {any} value - The current value of the reference
