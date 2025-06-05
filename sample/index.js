@@ -1,5 +1,5 @@
 const countContainer = document.querySelector('.count');
-const countMultyContainer = document.querySelector('.count-multy');
+const countMultiContainer = document.querySelector('.count-multi');
 const decrButton = document.querySelector('.decr');
 const incrButton = document.querySelector('.incr');
 const incrFactorButton = document.querySelector('.incrFactor');
@@ -8,16 +8,14 @@ const incrFactorButton = document.querySelector('.incrFactor');
 const countRef = ref(12);
 const multiplyFactorRef = ref(1);
 
-console.log(countRef);
-
 const updateCount = (value) => {
   countContainer.textContent = value;
 }
 const updateMultiply = (value) => {
-  countMultyContainer.textContent = value * multiplyFactorRef.value;
+  countMultiContainer.textContent = value * multiplyFactorRef.value;
 }
 
-// [updateCount, updateMultiply] will be assigned just once to namedEfect object and call just once each
+// [updateCount, updateMultiply] will be assigned just once to namedEffect object and call just once each
 countRef.effect([updateCount, updateMultiply], {name: 'multiply', firstCall: false});
 countRef.effect([updateCount, updateMultiply]);
 countRef.effect(updateCount);
@@ -39,3 +37,38 @@ incrFactorButton.addEventListener('click', () => {
   multiplyFactorRef.value += 1;
 })
 
+const preElement = document.querySelector('.object-draw');
+const object = {
+  field1: "value1",
+  field2: "value2",
+  field3: {
+    inner_field1: "inner_value1",
+    inner_field2: "inner_value2",
+  }
+};
+
+const deepAllRef = ref(object, {deep: "all"});
+
+deepAllRef.effect((value, refValue) => {
+  preElement.innerText = JSON.stringify(refValue, null, 2);
+
+  console.log("Update");
+});
+
+setTimeout(() => {
+  deepAllRef.value.field1 = "new value";
+}, 500)
+
+setTimeout(() => {
+  deepAllRef.value.field3.inner_field1 = "new value";
+}, 1500)
+
+setTimeout(() => {
+  deepAllRef.value.field3 = "new value";
+}, 2500)
+
+/*
+Object.defineProperty(object, 'field3', {
+  writable: false,
+  configurable: false
+});*/

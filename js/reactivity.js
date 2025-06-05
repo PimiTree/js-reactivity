@@ -75,7 +75,7 @@ const createRef = (value) => {
  */
 const createShallowProxyRef = (value) => {
   return new function () {
-    const refValue = value;
+    this.refValue = value;
     this.stabeEffects = [];
     this.namedEffects = {};
     this.raf = 0;
@@ -84,7 +84,7 @@ const createShallowProxyRef = (value) => {
      * Proxied object that tracks all property changes
      * @type {Proxy}
      */
-    this.value = new Proxy(refValue, {
+    this.value = new Proxy(this.refValue, {
 
       /**
        * Trap for setting properties that triggers effect callbacks
@@ -105,25 +105,55 @@ const createShallowProxyRef = (value) => {
 
         return true;
       },
-
-      /**
-       * Trap for getting properties
-       * @param {Object} target - The target object
-       * @param {string|symbol} key - The property key
-       * @param {Object} receiver - The proxy or object the property is being accessed on
-       * @returns {any} The property value
-       */
-      get(target, key, receiver) {
-        return Reflect.get(target, key, receiver);
-      }
     })
   }
 }
 
+const createProxyAllRef = (value) => {
+
+
+
+  return new function () {
+    this.refValue = value;
+    this.stabeEffects = [];
+    this.namedEffects = {};
+    this.raf = 0;
+
+    this.setMethod =  (target, key, value, receiver) => {
+      Reflect.set(target, key, value, receiver);
+
+      cancelAnimationFrame(this.raf);
+
+      this.raf = requestAnimationFrame(() => {
+        this.callEffects();
+      })
+
+      return true;
+    }
+    this.getMethod =  (target, key, receiver) =>  {
+      const currentTarget = Reflect.get(target, key, receiver);
+
+      if (typeof currentTarget === 'object') {
+        return new Proxy(currentTarget, {
+          set: this.setMethod,
+          get: this.getMethod
+        })
+      } else {
+        return currentTarget;
+      }
+    }
+
+    this.value = new Proxy(value, {
+      set: this.setMethod,
+      get: this.getMethod
+    })
+  }
+}
 
 /**
  * @typedef {Object} RefOptions
  * @property {('setter'|'proxy')} [type] - Type of reference ('setter' forces setter-based even for objects)
+ * @property {('all' | 'inner')} [deep] - Type of reference: 'all' - create deep ref managed with one proxy, 'inner' - Proxy-in-Proxy solution
  * @property {boolean} [firstCall] - Whether to call effects immediately upon registration for the main ref function
  */
 
@@ -152,8 +182,9 @@ const ref = (value, options) => {
    */
   let ref;
 
-
-  if (typeof value === 'object' && !(value instanceof Date) && options?.type !== 'setter') {
+  if (options?.deep === "all") {
+    ref = createProxyAllRef(value);
+  } else if (typeof value === 'object' && !(value instanceof Date) && options?.type !== 'setter') {
     ref = createShallowProxyRef(value);
   } else {
     ref = createRef(value);
@@ -182,7 +213,7 @@ const ref = (value, options) => {
 
     if (effectOptions?.firstCall === undefined || effectOptions.firstCall === true) {
       totalEffects.forEach((func) => {
-        func(this.value)
+        func(this.value, this.refValue)
       })
     }
   }
@@ -218,12 +249,12 @@ const ref = (value, options) => {
    */
   ref.callEffects = function () {
     this.stabeEffects.forEach((effect) => {
-      effect(this.value);
+      effect(this.value, this.refValue);
     });
 
     Object.values(this.namedEffects).forEach((namedEffect) => {
       namedEffect.forEach((effect) => {
-        effect(this.value)
+        effect(this.value, this.refValue)
       })
     })
   }
