@@ -43,32 +43,60 @@ const object = {
   field2: "value2",
   field3: {
     inner_field1: "inner_value1",
-    inner_field2: "inner_value2",
-  }
+    inner_field2: {
+      deep_field1: 1,
+      deep_field2: 1
+    },
+  },
+  field4: ['4', 1, 7]
 };
 
-const deepAllRef = ref(object, {deep: "all"});
+// const deepAllRef = ref(object, {deep: "all"});
+//
+// deepAllRef.effect((value, refValue) => {
+//   preElement.innerText = JSON.stringify(refValue, null, 2);
+//
+//   console.log("Update");
+// }, {firstCall: false});
+// setTimeout(() => {
+//   deepAllRef.value.field1 = "new value";
+// }, 500)
+//
+// setTimeout(() => {
+//   deepAllRef.value.field3.inner_field1 = "new value";
+// }, 1500)
+//
+// setTimeout(() => {
+//   deepAllRef.value.field3 = "new value";
+// }, 2500)
+//
+// setTimeout(() => {
+//   deepAllRef.value.field4[0] = "new value";
+// }, 3500)
 
-deepAllRef.effect((value, refValue) => {
+
+const deepInnerRef = ref(object, {deep: "inner"});
+deepInnerRef.effect((value, refValue) => {
   preElement.innerText = JSON.stringify(refValue, null, 2);
 
   console.log("Update");
 });
 
 setTimeout(() => {
-  deepAllRef.value.field1 = "new value";
+  deepInnerRef.value.field1 = "new value";
 }, 500)
 
 setTimeout(() => {
-  deepAllRef.value.field3.inner_field1 = "new value";
+  deepInnerRef.value.field3.inner_field1 = "new value";
 }, 1500)
 
 setTimeout(() => {
-  deepAllRef.value.field3 = "new value";
+  deepInnerRef.value.field3 = "new value";
 }, 2500)
 
-/*
-Object.defineProperty(object, 'field3', {
-  writable: false,
-  configurable: false
-});*/
+setTimeout(() => {
+  deepInnerRef.value.field4[0] = "new value";
+}, 3500)
+
+
+console.log(deepInnerRef);
