@@ -47,99 +47,10 @@ const ref = (value, options) => {
     }
   }
 
-  const createProxyAllRef = (value) => {
-    return new function () {
-      this.refValue = value;
-      this.stabeEffects = [];
-      this.namedEffects = {};
-      this.raf = 0;
-
-      this.setMethod = (target, key, value, receiver) => {
-        Reflect.set(target, key, value, receiver);
-
-        cancelAnimationFrame(this.raf);
-
-        this.raf = requestAnimationFrame(() => {
-          this.callEffects();
-        })
-
-        return true;
-      }
-      this.getMethod = (target, key, receiver) => {
-        const currentTarget = Reflect.get(target, key, receiver);
-
-        if (typeof currentTarget === 'object') {
-          return new Proxy(currentTarget, {
-            set: this.setMethod,
-            get: this.getMethod
-          })
-        } else {
-          return currentTarget;
-        }
-      }
-
-      this.value = new Proxy(value, {
-        set: this.setMethod,
-        get: this.getMethod
-      })
-    }
-  }
-
-  const createProxyInnerRef = (value) => {
-    return new function () {
-      const createDeepProxy = (value) => {
-        
-        if (Object.prototype.toString.call(value) === '[object Object]' || Array.isArray(value)) {
-          Object.entries(value).forEach((inner_value) => {
-
-            value[inner_value[0]] = createDeepProxy(inner_value[1]);
-
-            if (Object.prototype.toString.call(inner_value[1]) === '[object Object]' || Array.isArray(inner_value[1])) {
-
-              Object.defineProperty(value, inner_value[0], {
-                writable: false,
-                configurable: false
-              });
-            }
-
-          })
-
-        } else {
-          return value;
-        }
-
-        return new Proxy(value, {set: this.setMethod})
-      }
-
-      this.refValue = value;
-      this.stabeEffects = [];
-      this.namedEffects = {};
-      this.raf = 0;
-
-      this.setMethod = (target, key, value, receiver) => {
-        Reflect.set(target, key, value, receiver);
-
-        cancelAnimationFrame(this.raf);
-
-        this.raf = requestAnimationFrame(() => {
-          this.callEffects();
-        })
-
-        return true;
-      }
-
-      this.value = createDeepProxy(value);
-    }
-  }
-
   const ref = (value, options) => {
     let ref;
 
-    if (options?.deep === "all") {
-      ref = createProxyAllRef(value);
-    } else if (options?.deep === "inner") {
-      ref = createProxyInnerRef(value);
-    } else if (typeof value === 'object' && !(value instanceof Date) && options?.type !== 'setter') {
+    if (typeof value === 'object' && !(value instanceof Date) && options?.type !== 'setter') {
       ref = createShallowProxyRef(value);
     } else {
       ref = createRef(value);
