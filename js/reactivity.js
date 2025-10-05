@@ -14,7 +14,7 @@ const ref = (value, options) => {
         cancelAnimationFrame(this.__raf);
 
         this.__raf = requestAnimationFrame(() => {
-          this.callEffects();
+          this.callEffects(null, value);
         })
       },
 
@@ -38,7 +38,7 @@ const ref = (value, options) => {
           cancelAnimationFrame(this.raf);
 
           this.raf = requestAnimationFrame(() => {
-            this.callEffects();
+            this.callEffects(key, value);
           })
 
           return true;
@@ -74,7 +74,7 @@ const ref = (value, options) => {
 
       if (effectOptions?.firstCall === undefined || effectOptions.firstCall === true) {
         totalEffects.forEach((func) => {
-          func(this.value, this.refValue)
+          func({effectKey: null, effectValue: null, effectProxy: ref, effectRef: ref.refValue})
         })
       }
     }
@@ -99,14 +99,14 @@ const ref = (value, options) => {
       return totalEffects;
     }
 
-    ref.callEffects = function () {
+    ref.callEffects = function (key, value) {
       this.stabeEffects.forEach((effect) => {
-        effect(this.value, this.refValue);
+        effect({effectKey: key, effectValue: value, effectProxy: this, effectRef: this.refValue});
       });
 
       Object.values(this.namedEffects).forEach((namedEffect) => {
         namedEffect.forEach((effect) => {
-          effect(this.value, this.refValue)
+          effect({effectKey: key, effectValue: value, effectProxy: this, effectRef: this.refValue})
         })
       })
     }
@@ -117,7 +117,6 @@ const ref = (value, options) => {
 
     Object.defineProperty(ref, 'effectNames', {
       get: function () {
-
         return Object.keys(this.namedEffects);
       }
     })
