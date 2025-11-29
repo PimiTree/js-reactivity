@@ -48,7 +48,7 @@ const ref = (value, options) => {
   const ref = (value, options) => {
     let ref;
 
-    if (typeof value === 'object' && !(value instanceof Date) && options?.type !== 'setter') {
+    if (value !== null && typeof value === 'object' && !(value instanceof Date) && options?.type !== 'setter') {
       ref = createShallowProxyRef(value);
     } else {
       ref = createRef(value);
