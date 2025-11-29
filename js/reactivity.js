@@ -5,8 +5,7 @@ const ref = (value, options) => {
   const createRef = (value) => {
     return {
       refValue: value,
-      stabeEffects: [],
-      namedEffects: {},
+      effects: [],
       __raf: 0,
 
       set value(value) {
@@ -14,7 +13,7 @@ const ref = (value, options) => {
         cancelAnimationFrame(this.__raf);
 
         this.__raf = requestAnimationFrame(() => {
-          this.callEffects(null, value);
+          this.callEffects(null, this.refValue);
         })
       },
 
@@ -27,8 +26,7 @@ const ref = (value, options) => {
   const createShallowProxyRef = (value) => {
     return new function () {
       this.refValue = value;
-      this.stabeEffects = [];
-      this.namedEffects = {};
+      this.effects = [];
       this.raf = 0;
 
       this.value = new Proxy(this.refValue, {
@@ -61,66 +59,35 @@ const ref = (value, options) => {
 
       if (totalEffects.length === 0) return;
 
-      let effectContainer;
-      if (effectOptions?.name !== undefined) {
-        if (this.namedEffects[effectOptions.name] === undefined) this.namedEffects[effectOptions.name] = [];
-
-        effectContainer = this.namedEffects[effectOptions.name];
-      } else {
-        effectContainer = this.stabeEffects;
-      }
-
-      effectContainer.push(...totalEffects);
+      this.effects.push(...totalEffects);
 
       if (effectOptions?.firstCall === undefined || effectOptions.firstCall === true) {
         totalEffects.forEach((func) => {
-          func({effectKey: null, effectValue: null, effectProxy: ref, effectRef: ref.refValue})
+          func(this)
         })
       }
+      
+      return this;
     }
 
     ref.__getNewEffects = function (effect) {
       const inputEffects = Array.isArray(effect) ? effect : [effect];
 
-
-      const newEffects = this.stabeEffects.length > 0
-          ? inputEffects.filter((effect) => !this.stabeEffects.includes(effect))
-          : inputEffects;
-
-      const localNamedEffects = Object.values(this.namedEffects);
-      const hasNamedEffects = localNamedEffects.some((list) => list.length > 0);
-      const totalEffects = hasNamedEffects
-          ? localNamedEffects.reduce((totalEffects, namedList) => {
-            return totalEffects.filter((effect) => !namedList.includes(effect));
-
-          }, newEffects)
-          : newEffects;
-
-      return totalEffects;
+      return this.effects.length > 0
+        ? inputEffects.filter((effect) => !this.effects.includes(effect))
+        : inputEffects;
     }
 
     ref.callEffects = function (key, value) {
-      this.stabeEffects.forEach((effect) => {
-        effect({effectKey: key, effectValue: value, effectProxy: this, effectRef: this.refValue});
+      this.effects.forEach((effect) => {
+        effect(this);
       });
-
-      Object.values(this.namedEffects).forEach((namedEffect) => {
-        namedEffect.forEach((effect) => {
-          effect({effectKey: key, effectValue: value, effectProxy: this, effectRef: this.refValue})
-        })
-      })
     }
 
     ref.isEffectExist = function (effect) {
       return this.__getNewEffects(effect).length === 0
     }
-
-    Object.defineProperty(ref, 'effectNames', {
-      get: function () {
-        return Object.keys(this.namedEffects);
-      }
-    })
-
+    
     return ref;
   }
 

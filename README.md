@@ -120,10 +120,10 @@ const effect = (value) =>  {
 }
 ```
 
-Reactive variable has two pools of effects `.stabeEffects` and `.namedEffects`.
+Reactive variable has one pool of effects `.effects`.
 `.effect()` - always call all new allowed effects.
 
-#### Fill up `.stabeEffects` pool
+#### Fill up `.effects` pool
 ```ecmascript 6
 const countRef = ref(0);
 
@@ -136,11 +136,6 @@ countRef.effect(commonFunction);
 // anonimus or arrow
 
 countRef.effect((value) =>   console.log(value));
-```
-
-#### Fill up `.namedEffects` pool with second parameter of subpool name
-```ecmascript 6
-countRef.effect((value) =>   console.log(value), {name: 'subpoolName'});
 ```
 
 #### Multiple fill up 
@@ -177,7 +172,7 @@ countRef.effect(effect1);
 countRef.effect(effect1);
 
 
-console.log(countRef.stabeEffects.length) // 1
+console.log(countRef.effects.length) // 1
 
 // 
 
@@ -186,20 +181,17 @@ countRef.effect(effect1, {name: 'subpoolName'});
 countRef.effect(effect1);
 countRef.effect(effect1, 'anotherSubpoolName');
 
-console.log(countRef.namedEffects.subpoolName.length) // 1
-console.log(countRef.namedEffects.anotherSubpoolName?.length) // undefined
-console.log(countRef.stabeEffects.length) // 0
+console.log(countRef.effects.length) // 0
 ```
 
 But if the pool filled up with array of the same effects, all pass in. So do not be silly ;)
 ```ecmascript 6
 const countRef = ref(0);
-function effect1 (value) {
-  console.log(value, "I'm effect 1")
+const effect1 = (ref) => {
+  console.log(ref.value, "I'm effect 1")
 }
 
 countRef.effect([effect1, effect1]);
-console.log(countRef.namedEffects.subpoolName.length) // 2
 ```
 
 ### Warning 
@@ -228,11 +220,6 @@ if (countRef.isEffectExist(effect1)) {
 }
 ```
 It might be useful when need to push effect without a call. 
-
-
-### Effects composition
-`.stabeEffects` pool runs first and then `.namedEffects`.
-`.namedEffects` functions call in historical subpool creation order. 
 
 
 ## Effect call debouncing 
