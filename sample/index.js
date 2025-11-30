@@ -9,8 +9,8 @@ const incrFactorButton = document.querySelector('.incrFactor');
 const countRef = ref(12);
 const multiplyFactorRef = ref(1);
 
-const updateCount = ({ value }) => {
-  countContainer.textContent = value;
+const updateCount = (ref) => {
+  countContainer.textContent = ref.value;
 }
 const updateMultiply = (ref) => {
   countMultiContainer.textContent = ref.value * multiplyFactorRef.value;
@@ -21,7 +21,7 @@ const updateMultiply = (ref) => {
 // [updateCount, updateMultiply] will be assigned just once to namedEffect object and call just once each
 countRef.effect([updateCount, updateMultiply]);
 countRef.effect(updateCount);
-countRef.effect(({ value }) => {console.log(value)} );
+countRef.effect((ref) => {console.log(ref.value)} );
 
 
 multiplyFactorRef.effect(() => countRef.callEffects(), {firstCall: false});

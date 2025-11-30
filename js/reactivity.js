@@ -13,7 +13,7 @@ const ref = (value, options) => {
         cancelAnimationFrame(this.__raf);
 
         this.__raf = requestAnimationFrame(() => {
-          this.callEffects(null, this.refValue);
+          this.callEffects();
         })
       },
 
@@ -36,7 +36,7 @@ const ref = (value, options) => {
           cancelAnimationFrame(this.raf);
 
           this.raf = requestAnimationFrame(() => {
-            this.callEffects(key, value);
+            this.callEffects();
           })
 
           return true;
@@ -78,7 +78,7 @@ const ref = (value, options) => {
         : inputEffects;
     }
 
-    ref.callEffects = function (key, value) {
+    ref.callEffects = function () {
       this.effects.forEach((effect) => {
         effect(this);
       });
